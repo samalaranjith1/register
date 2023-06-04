@@ -11,7 +11,7 @@ function Login() {
     e.preventDefault();
     try {
       await axios
-        .post("http://localhost:3000/user/login", {
+        .post("http://localhost:9002/user/login", {
           username: username,
           password: password,
         })
@@ -21,9 +21,10 @@ function Login() {
             const data = res.data;
             if (data.status === true) {
               alert("User login successfull");
-              navigate("/");
+
+              navigate("/home", { state: username });
             } else {
-              alert("Please check details,Login failed");
+              alert("Please check details invalid username or password");
             }
           },
           (fail) => {
