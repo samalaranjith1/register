@@ -1,0 +1,130 @@
+const userModel = require("./userModel");
+var key = "1234567890qwerty";
+var encryptor = require("simple-encryptor")(key);
+
+module.exports.createUserDBService = (userDetails) => {
+  return new Promise(function myFn(resolve, reject) {
+    var userModelData = new userModel();
+    userModelData.username = userDetails.username;
+    userModelData.email = userDetails.email;
+    userModelData.password = userDetails.password;
+    var encrypted = encryptor.encrypt(userDetails.password);
+    userModelData.password = encrypted;
+    userModelData
+      .save()
+      .then((result) => {
+        resolve(true);
+        resolve({ status: true, msg: "User created successfully" });
+
+        // res.status(200).json({
+        //   status: true,
+        //   message: "log added successfully done",
+        // });
+      })
+      .catch((error) => {
+        reject(false);
+        console.log(error);
+      });
+
+    // userModelData.save().then((error, result) => {
+    //   if (error) {
+    //     reject(false);
+    //   } else {
+    //     resolve(true);
+    //   }
+    // });
+  });
+};
+
+module.exports.loginUserDBService = (userDetails) => {
+  return new Promise(function myFn(resolve, reject) {
+    console.log("code at line 27");
+    console.log(userModel);
+    userModel
+      .findOne({ username: userDetails.username })
+      .then((result, error) => {
+        console.log(result + "result details");
+        console.log(error + "error details");
+        console.log("code at line 31");
+        if (error) {
+          console.log("code at line 33");
+          reject({ status: false, msg: "Invalid data" });
+        } else {
+          console.log("code at line 36");
+          if (result != undefined && result != null) {
+            console.log("code at line 38");
+            var decrypted = encryptor.decrypt(result.password);
+            if (decrypted === userDetails.password) {
+              console.log("code at line 41");
+              resolve({ status: true, msg: "User validated successfully" });
+            } else {
+              console.log("code at line 44");
+              reject({ status: false, msg: "Please provide correct password" });
+            }
+          } else {
+            console.log("code at line 48");
+
+            reject({
+              status: false,
+              msg: "Username not existed, please signup",
+            });
+          }
+        }
+      });
+
+    // (result) => {
+    //   if (result != undefined && result != null) {
+    //     var decrypted = encryptor.decrypt(result.password);
+    //     if (decrypted === userDetails.password) {
+    //       resolve({ status: true, msg: "User validated successfully" });
+    //     } else {
+    //       reject({ status: false, msg: "Please provide correct password" });
+    //     }
+    //   }
+    // }
+
+    // .catch((error) => {
+    //   reject({
+    //     status: false,
+    //     msg: "Username not existed, please signup",
+    //   });
+    // });
+
+    //   userModel.findOne({ username: userDetails.username }).then(()=>{
+    //     function getResult(error, result) {
+    //       if (error) {
+    //         reject({ status: false, msg: "Invalid data" });
+    //       } else {
+    //         if (result != undefined && result != null) {
+    //           var decrypted = encryptor.decrypt(result.password);
+    //           if (decrypted === userDetails.password) {
+    //             resolve({ status: true, msg: "User validated successfully" });
+    //           } else {
+    //             reject({ status: false, msg: "Please provide correct password" });
+    //           }
+    //         } else {
+    //           reject({
+    //             status: false,
+    //             msg: "Username not existed, please signup",
+    //           });
+    //         }
+    //       }
+    //     }
+    // });
+  });
+};
+
+// var userModelData = new userModel();
+
+// userModelData.username = userDetails.username;
+// userModelData.password = userDetails.password;
+// var encrypted = encryptor.encrypt(userDetails.password);
+// userModelData.password = encrypted;
+
+// userModelData.save(function resultHandle(error, result) {
+//   if (error) {
+//     reject(false);
+//   } else {
+//     resolve(true);
+//   }
+// });
